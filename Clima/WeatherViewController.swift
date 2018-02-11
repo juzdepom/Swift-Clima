@@ -20,6 +20,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     //TODO: Declare instance variables here
     let locationManager = CLLocationManager()
     var weatherDataModelObject = WeatherDataModel()
+    var temperatureType = "C"
 
     //Pre-linked IBOutlets
     @IBOutlet weak var weatherIcon: UIImageView!
@@ -38,6 +39,23 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
 
     //MARK: - Networking
     /***************************************************************/
+    @IBAction func toggleTemperature(_ sender: UIButton) {
+        var temp = ""
+        let tempNum = weatherDataModelObject.temperature
+        if temperatureType == "C" {
+            temp =  String(temperatureInFahrenheit(temperature: Double(tempNum))) + "° F"
+            temperatureType = "F"
+        } else {
+            temp = String(tempNum) + "° C"
+            temperatureType = "C"
+        }
+        temperatureLabel.text = temp
+    }
+    
+    func temperatureInFahrenheit(temperature: Double) -> Int {
+        let fahrenheitTemperature = temperature * 9 / 5 + 32
+        return Int(fahrenheitTemperature)
+    }
     
     //Write the getWeatherData method here:
     func getWeatherData(url: String, param: [String:String]){
@@ -79,7 +97,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     //Write the updateUIWithWeatherData method here:
     func updateUIWithWeatherData(){
         cityLabel.text = weatherDataModelObject.city
-        temperatureLabel.text = String(weatherDataModelObject.temperature) + "°"
+        temperatureLabel.text = String(weatherDataModelObject.temperature) + "° C"
         weatherIcon.image = UIImage(named: weatherDataModelObject.weatherIconName)
         
     }
@@ -112,7 +130,9 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Change
     
     //Write the userEnteredANewCityName Delegate method here:
     func userEnteredANewCityName(city: String) {
-        print(city)
+        
+        let params: [String: String] = ["q" : city, "appid" : APP_ID]
+        getWeatherData(url: WEATHER_URL, param: params)
     }
     
     //Write the PrepareForSegue Method here
